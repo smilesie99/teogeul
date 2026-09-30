@@ -151,14 +151,20 @@ class KeyEventHandler(
             inputConnection.commitText(" ", 1)
             return true
         } else if (key == KeyEvent.KEYCODE_DEL) {
-            if (!hangulEngine.backspace()) {
-                resetCharComposition()
-                inputConnection.deleteSurroundingText(1, 0)
-            }
-            if (hangulEngine.composing == "") {
-                resetCharComposition()
-            }
-            return true
+    val selectedText = inputConnection.getSelectedText(0)
+    if (!selectedText.isNullOrEmpty()) {
+        resetCharComposition()
+        inputConnection.commitText("", 1)
+    } else {
+        if (!hangulEngine.backspace()) {
+            resetCharComposition()
+            inputConnection.deleteSurroundingText(1, 0)
+        }
+        if (hangulEngine.composing == "") {
+            resetCharComposition()
+        }
+    }
+    return true
         } else if (key == KeyEvent.KEYCODE_ENTER) {
             resetCharComposition()
             val editorInfo = currentInputEditorInfoProvider()
