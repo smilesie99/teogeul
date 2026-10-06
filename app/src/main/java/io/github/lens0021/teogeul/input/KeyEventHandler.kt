@@ -104,6 +104,7 @@ class KeyEventHandler(
                 is VirtualKeyAction.ToggleLanguage -> {
                     toggleLanguage()
                 }
+
                 is VirtualKeyAction.SendKeyEvent -> {
                     // Create a new KeyEvent with the mapped key code
                     val newEvent =
@@ -119,6 +120,7 @@ class KeyEventHandler(
                         )
                     sendKeyEvent(newEvent)
                 }
+
                 is VirtualKeyAction.OpenIMEPicker -> {
                     openIMEPicker()
                 }
@@ -150,21 +152,35 @@ class KeyEventHandler(
             resetCharComposition()
             inputConnection.commitText(" ", 1)
             return true
+        } else if (
+            (key == KeyEvent.KEYCODE_DPAD_LEFT ||
+                key == KeyEvent.KEYCODE_DPAD_RIGHT ||
+                key == KeyEvent.KEYCODE_DPAD_UP ||
+                key == KeyEvent.KEYCODE_DPAD_DOWN) &&
+                !ev.isShiftPressed
+        ) {
+            resetCharComposition()
+            inputConnection.clearMetaKeyStates(
+                KeyEvent.META_SHIFT_ON or
+                    KeyEvent.META_SHIFT_LEFT_ON or
+                    KeyEvent.META_SHIFT_RIGHT_ON,
+            )
+            return false
         } else if (key == KeyEvent.KEYCODE_DEL) {
-    val selectedText = inputConnection.getSelectedText(0)
-    if (!selectedText.isNullOrEmpty()) {
-        resetCharComposition()
-        inputConnection.commitText("", 1)
-    } else {
-        if (!hangulEngine.backspace()) {
-            resetCharComposition()
-            inputConnection.deleteSurroundingText(1, 0)
-        }
-        if (hangulEngine.composing == "") {
-            resetCharComposition()
-        }
-    }
-    return true
+            val selectedText = inputConnection.getSelectedText(0)
+            if (!selectedText.isNullOrEmpty()) {
+                resetCharComposition()
+                inputConnection.commitText("", 1)
+            } else {
+                if (!hangulEngine.backspace()) {
+                    resetCharComposition()
+                    inputConnection.deleteSurroundingText(1, 0)
+                }
+                if (hangulEngine.composing == "") {
+                    resetCharComposition()
+                }
+            }
+            return true
         } else if (key == KeyEvent.KEYCODE_ENTER) {
             resetCharComposition()
             val editorInfo = currentInputEditorInfoProvider()
